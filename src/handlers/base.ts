@@ -36,8 +36,18 @@ export const handlerGenerator = <R extends JSONValue>(
 
       // リクエストボディがある場合、それを取り出してバリデーション
       if (c.req.json) {
-        const body = await c.req.json();
-        args = { ...args, body };
+        try {
+          const body = await c.req.json();
+          if (body) {
+            args.body = body;
+          }
+        } catch (e: unknown) {
+          if (e instanceof Error && e.name === "SyntaxError") {
+            console.warn(`Failed to parse JSON or empty Body, ${e}`);
+          } else {
+            console.error(e);
+          }
+        }
       }
 
       // controllerMethod を実行して結果を取得
