@@ -6,7 +6,7 @@ import { tasksApi } from "../routes/task_route";
 const app = new OpenAPIHono();
 
 app.route("/tasks", tasksApi);
-app.doc("/doc", {
+app.doc("/swagger-json", {
   openapi: "3.1.0",
   info: {
     version: "1.0.0",
@@ -20,7 +20,7 @@ app.doc("/doc", {
   servers: [{ url: "http://localhost:3333" }],
 });
 // Use the middleware to serve Swagger UI at /ui
-app.get("/ui", swaggerUI({ url: "/doc" }));
+app.get("/swagger", swaggerUI({ url: "/swagger-json" }));
 app.get("/healthcheck", (c) => c.text("health check!"));
 
 export const handler = handle(app);
