@@ -1,6 +1,8 @@
-import { createRoute } from "@hono/zod-openapi";
+import { createRoute, RouteHandler } from "@hono/zod-openapi";
 import {
+  Task,
   taskCreateRequestSchema,
+  TaskList,
   taskSchema,
   tasksSchema,
 } from "../schemas/task_schema";
@@ -11,9 +13,17 @@ import {
   UNAUTHORIZED_ERROR,
 } from "../schemas/errors";
 
-export const fetchTasksRoute = createRoute({
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { TaskController } from "../controllers/taks_controller";
+import { handlerGenerator } from "../handlers/base";
+
+const taskController = new TaskController();
+
+export const tasksApi = new OpenAPIHono();
+
+const fetchTasksRoute = createRoute({
   method: "get",
-  path: "/tasks",
+  path: "/",
   responses: {
     200: {
       content: {
@@ -32,10 +42,12 @@ export const fetchTasksRoute = createRoute({
   operationId: "fetchAllTasks",
   tags: ["Task"],
 });
+const fetchTasksHandler: RouteHandler<typeof fetchTasksRoute, {}> =
+  handlerGenerator<TaskList>(taskController.fetchAllTasks);
 
-export const createTaskRoute = createRoute({
+const createTaskRoute = createRoute({
   method: "post",
-  path: "/tasks",
+  path: "/",
   request: {
     body: {
       content: {
@@ -60,3 +72,40 @@ export const createTaskRoute = createRoute({
     500: INTERNAL_SERVER_ERROR,
   },
 });
+const createTaskHandler: RouteHandler<typeof createTaskRoute, {}> =
+  handlerGenerator<Task>(({ body: task }) => taskController.createTask(task));
+
+const fetchTaskRoute = createRoute({
+  method: "get",
+  path: "/:taskId",
+  parameters: [
+    {
+      in: "path",
+      name: "taskId",
+      required: true,
+    },
+  ],
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: taskSchema,
+        },
+      },
+      description: "タスクを1件取得しました。",
+    },
+    400: BAD_REQUEST_ERROR,
+    401: UNAUTHORIZED_ERROR,
+    404: NOT_FOUND_ERROR,
+    500: INTERNAL_SERVER_ERROR,
+  },
+});
+const fetchTaskHandler: RouteHandler<typeof fetchTaskRoute, {}> =
+  handlerGenerator<Task>(({ path: { taskId } }) =>
+    taskController.fetchTask(taskId)
+  );
+
+tasksApi
+  .openapi(fetchTasksRoute, fetchTasksHandler)
+  .openapi(createTaskRoute, createTaskHandler)
+  .openapi(fetchTaskRoute, fetchTaskHandler);

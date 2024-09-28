@@ -1,6 +1,6 @@
 import { z } from "@hono/zod-openapi";
 
-const taskIdSchama = z.string().openapi({
+const taskIdSchema = z.string().openapi({
   title: "タスクのID",
   description: "タスクのIDです。",
   example: "9aa8caf4ca0c4963a9a035d76a3018fe",
@@ -18,7 +18,7 @@ const descriptionSchema = z.string().max(255).openapi({
   example: "わからないことがあれば上司に確認",
 });
 
-const dueDateSchema = z.date().openapi({
+const dueDateSchema = z.string().openapi({
   title: "タスクの期日",
   description: "タスクの期日です。",
   example: "2022-12-31",
@@ -39,19 +39,21 @@ const isDeletedSchame = z.boolean().openapi({
   description: "タスクの削除フラグです。",
   example: false,
 });
-const createdAtSchema = z.date().openapi({
+const createdAtSchema = z.string().openapi({
   title: "タスクの登録日",
   description: "タスクの登録日です。",
   example: "2022-12-01",
 });
-const updatedAtSchema = z.date().openapi({
+const updatedAtSchema = z.string().openapi({
   title: "タスクの更新日",
   description: "タスクの更新日です。",
   example: "2022-12-02",
 });
 
+export type Task = z.infer<typeof taskSchema>;
+
 export const taskSchema = z.object({
-  id: taskIdSchama,
+  id: taskIdSchema,
   title: titleSchema,
   description: descriptionSchema,
   dueDate: dueDateSchema,
@@ -62,7 +64,11 @@ export const taskSchema = z.object({
   updatedAt: updatedAtSchema,
 });
 
+export type TaskList = z.infer<typeof tasksSchema>;
+
 export const tasksSchema = z.array(taskSchema);
+
+export type TaskCreateRequest = z.infer<typeof taskCreateRequestSchema>;
 
 export const taskCreateRequestSchema = z.object({
   title: titleSchema,
