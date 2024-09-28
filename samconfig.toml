@@ -28,11 +28,11 @@ tags = ["STAGE=local"]
 [local.local_start_api.parameters]
 warm_containers = "EAGER"
 port = 3333
-docker_network = "hono-lambda-test_default"
+# docker_network = "hono-lambda-test_default"
 
 [local.local_start_lambda.parameters]
 warm_containers = "EAGER"
-docker_network = "hono-lambda-test_default"
+# docker_network = "hono-lambda-test_default"
 
 [local.package.parameters]
 s3_bucket = "local-hono-lambda-test-backend-deployment-bucket"
