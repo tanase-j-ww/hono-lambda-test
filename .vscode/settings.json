@@ -37,7 +37,7 @@
         "cmd": "npm run build"
       },
       {
-        "match": ".*.ts, .*.js",
+        "match": ".*.ts",
         "cmd": "npm run build"
       }
     ]
