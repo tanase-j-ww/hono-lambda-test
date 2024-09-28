@@ -1,0 +1,45 @@
+{
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit"
+  },
+  "editor.formatOnSave": true,
+  "yaml.customTags": [
+    "!Ref",
+    "!Sub scalar",
+    "!Sub sequence",
+    "!Join sequence",
+    "!FindInMap sequence",
+    "!GetAtt scalar",
+    "!GetAtt sequence",
+    "!Base64 mapping",
+    "!GetAZs",
+    "!Select scalar",
+    "!Select sequence",
+    "!Split sequence",
+    "!ImportValue",
+    "!Condition",
+    "!Equals sequence",
+    "!And",
+    "!If",
+    "!Not",
+    "!Or"
+  ],
+  "emeraldwalk.runonsave": {
+    "commands": [
+      {
+        "match": "template.yaml",
+        "cmd": "npm run build"
+      },
+      {
+        "match": "package.json",
+        "cmd": "npm run build"
+      },
+      {
+        "match": ".*.ts, .*.js",
+        "cmd": "npm run build"
+      }
+    ]
+  }
+}

@@ -1,0 +1,122 @@
+version = 0.1
+
+# local
+[local]
+[local.global.parameters]
+stack_name = "local-hono-lambda-test-backend"
+parameter_overrides = [
+    "Stage=local",
+    "ApiVersionHash=latest",
+    "AppApiBaseUrl=http://localhost:3333",
+    "ApiCorsAllowedOrigins=http://localhost:3000,http://localhost:3005",
+]
+
+[local.build.parameters]
+cached = true
+parallel = true
+template = "./template.yaml"
+[local.validate.parameters]
+lint = true
+
+[local.deploy.parameters]
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = false
+region = "ap-northeast-1"
+s3_bucket = "local-hono-lambda-test-backend-deployment-bucket"
+tags = ["STAGE=local"]
+
+[local.local_start_api.parameters]
+warm_containers = "EAGER"
+port = 3333
+docker_network = "hono-lambda-test_default"
+
+[local.local_start_lambda.parameters]
+warm_containers = "EAGER"
+docker_network = "hono-lambda-test_default"
+
+[local.package.parameters]
+s3_bucket = "local-hono-lambda-test-backend-deployment-bucket"
+
+[local.sync.parameters]
+watch = false
+
+# dev
+[dev]
+[dev.global.parameters]
+stack_name = "dev-hono-lambda-test-backend"
+parameter_overrides = [
+    "Stage=dev",
+    "ApiVersionHash=latest",
+    "AppApiBaseUrl=https://hono-lambda-test/dev",
+    "ApiCorsAllowedOrigins=http://localhost:3000,http://localhost:3005,https://hono-lambda-test",
+]
+
+[dev.build.parameters]
+cached = false
+parallel = false
+template = "./template.yaml"
+
+[dev.deploy.parameters]
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = false
+region = "ap-northeast-1"
+s3_bucket = "dev-hono-lambda-test-backend-deployment-bucket"
+tags = ["STAGE=dev"]
+fail_on_empty_changeset = false
+
+
+[dev.package.parameters]
+s3_bucket = "dev-hono-lambda-test-backend-deployment-bucket"
+
+# stg
+[stg]
+[stg.global.parameters]
+stack_name = "stg-hono-lambda-test-backend"
+# TODO:
+parameter_overrides = [
+    "Stage=stg",
+    "ApiVersionHash=latest",
+    "AppApiBaseUrl=''",
+    "AwsActivityDataBucketName=''",
+    "ApiCorsAllowedOrigins=''",
+]
+fail_on_empty_changeset = false
+
+[stg.build.parameters]
+cached = false
+parallel = false
+template = "./template.yaml"
+
+[stg.deploy.parameters]
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = false
+region = "ap-northeast-1"
+s3_bucket = "stg-hono-lambda-test-backend-deployment-bucket"
+tags = ["STAGE=stg"]
+
+[stg.package.parameters]
+s3_bucket = "stg-hono-lambda-test-backend-deployment-bucket"
+
+# prod
+[prod]
+[prod.global.parameters]
+stack_name = "prod-hono-lambda-test-backend"
+# TODO:
+parameter_overrides = []
+
+[prod.build.parameters]
+cached = false
+parallel = false
+template = "./template.yaml"
+
+[prod.deploy.parameters]
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = false
+region = "ap-northeast-1"
+s3_bucket = "prod-hono-lambda-test-backend-deployment-bucket"
+tags = ["STAGE=prod"]
+fail_on_empty_changeset = false
+
+
+[prod.package.parameters]
+s3_bucket = "prod-hono-lambda-test-backend-deployment-bucket"

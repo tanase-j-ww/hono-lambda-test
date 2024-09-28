@@ -1,0 +1,125 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  hono-lambda-test
+
+Parameters:
+  # Note: スネークケースが使えない
+  Stage:
+    Type: String
+    Default: local
+  ApiVersionHash:
+    Type: String
+    Default: latest
+  ApiCorsAllowedOrigins:
+    Type: String
+    Default: http://localhost:3000,http://localhost:3005
+  AppApiBaseUrl:
+    Type: String
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 1024
+    Runtime: nodejs20.x
+
+    Tracing: Active
+
+    LoggingConfig:
+      LogFormat: JSON
+    Environment:
+      Variables:
+        # NOTE: AWS_REGION is reserved by SAM so cannot be used
+        # AWS_REGION_: !Ref AwsRegion
+        STAGE: !Ref Stage
+        API_VERSION_HASH: !Ref ApiVersionHash
+        API_CORS_ALLOWED_ORIGINS: !Ref ApiCorsAllowedOrigins
+        API_BASE_URL: !Ref AppApiBaseUrl
+
+  Api:
+    TracingEnabled: true
+
+Resources:
+  apiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref Stage
+      Name: !Sub "${Stage}-hono-lambda-test-api"
+      Description: "apiGateway endpoint"
+      # EndpointConfiguration:
+      #   Type: PRIVATE
+      #   VPCEndpointIds:
+      #     - !Ref ApiGatewayVpcEndpointId
+      # Auth:
+      #   ResourcePolicy:
+      #     CustomStatements:
+      #       - Effect: Deny
+      #         Principal: "*"
+      #         Action: "execute-api:Invoke"
+      #         Resource: "execute-api:/*"
+      #         Condition:
+      #           StringNotEquals:
+      #             aws:SourceVpce: !Ref ApiGatewayVpcEndpointId
+      #       - Effect: Allow
+      #         Principal: "*"
+      #         Action: "execute-api:Invoke"
+      #         Resource: "execute-api:/*"
+      Tags:
+        STAGE: !Ref Stage
+  PackagesLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: packages-layer
+      ContentUri: packages_layer
+      CompatibleRuntimes:
+        - nodejs20.x
+    Metadata:
+      BuildMethod: nodejs20.x
+
+  apiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handler.app.lambda_handler
+      CodeUri: src
+      Description: api functions
+      Architectures:
+        - x86_64
+      Tracing: Active
+      Events:
+        HelloPath:
+          Type: Api
+          Properties:
+            RestApiId: !Ref apiGateway
+            Path: /{proxy+}
+            Method: ANY
+
+      Tags:
+        STAGE: !Ref Stage
+      Layers:
+        - !Ref PackagesLayer
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: "*"
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:CreateTable
+              Resource: "*"
+
+  ApplicationResourceGroup:
+    Type: AWS::ResourceGroups::Group
+    Properties:
+      Name: !Sub ApplicationInsights-SAM-${AWS::StackName}
+      ResourceQuery:
+        Type: CLOUDFORMATION_STACK_1_0
+  ApplicationInsightsMonitoring:
+    Type: AWS::ApplicationInsights::Application
+    Properties:
+      ResourceGroupName: !Ref ApplicationResourceGroup
+      AutoConfigurationEnabled: true
+Outputs:
+  ApiGatewayUrl:
+    Description: "API Gateway endpoint URL for healthcheck"
+    Value: !Sub "https://${apiGateway}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/healthcheck"
+    Export:
+      Name: !Sub "${AWS::StackName}-ApiUrl"

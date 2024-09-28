@@ -1,0 +1,29 @@
+name: Test
+
+on:
+  workflow_dispatch:
+
+  # push:
+  #   branches:
+  #     - "**"
+
+jobs:
+  test:
+    runs-on: [self-hosted, ubuntu]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.17.0
+      - run: npm ci
+      - name: Set sha_short
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      - name: format
+        run: npm run format:ci
+      - name: lint
+        run: npm run lint:ci
+      - name: Test
+        run: npm run test
+      - name: Build
+        run: npm run build
