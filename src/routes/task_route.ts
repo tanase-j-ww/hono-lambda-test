@@ -24,6 +24,10 @@ export const tasksApi = new OpenAPIHono();
 const fetchTasksRoute = createRoute({
   method: "get",
   path: "/",
+  summary: "全てのタスクを取得",
+  description: "論理削除済みタスクを除いた全てのタスクを返します。",
+  operationId: "fetchAllTasks",
+  tags: ["Task"],
   responses: {
     200: {
       content: {
@@ -37,10 +41,6 @@ const fetchTasksRoute = createRoute({
     401: UNAUTHORIZED_ERROR,
     500: INTERNAL_SERVER_ERROR,
   },
-  summary: "全てのタスクを取得",
-  description: "論理削除済みタスクを除いた全てのタスクを返します。",
-  operationId: "fetchAllTasks",
-  tags: ["Task"],
 });
 const fetchTasksHandler: RouteHandler<typeof fetchTasksRoute, {}> =
   handlerGenerator<TaskList>(taskController.fetchAllTasks);
@@ -81,6 +81,10 @@ const fetchTasksHandler: RouteHandler<typeof fetchTasksRoute, {}> =
 const createTaskRoute = createRoute({
   method: "post",
   path: "/",
+  summary: "新規タスクを作成",
+  description: "タスクを登録します。",
+  operationId: "createTask",
+  tags: ["Task"],
   request: {
     body: {
       content: {
@@ -111,6 +115,10 @@ const createTaskHandler: RouteHandler<typeof createTaskRoute, {}> =
 const fetchTaskRoute = createRoute({
   method: "get",
   path: "/{taskId}",
+  summary: "指定したタスクを取得",
+  description: "指定したIDのタスクを取得します。",
+  operationId: "fetchTask",
+  tags: ["Task"],
   parameters: [
     {
       in: "path",
