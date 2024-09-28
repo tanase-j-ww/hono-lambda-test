@@ -66,20 +66,20 @@ Resources:
       #         Resource: "execute-api:/*"
       Tags:
         STAGE: !Ref Stage
-  PackagesLayer:
-    Type: AWS::Serverless::LayerVersion
-    Properties:
-      LayerName: packages-layer
-      ContentUri: packages_layer
-      CompatibleRuntimes:
-        - nodejs20.x
-    Metadata:
-      BuildMethod: nodejs20.x
+  # PackagesLayer:
+  #   Type: AWS::Serverless::LayerVersion
+  #   Properties:
+  #     LayerName: packages-layer
+  #     ContentUri: packages_layer
+  #     CompatibleRuntimes:
+  #       - nodejs20.x
+  #   Metadata:
+  #     BuildMethod: nodejs20.x
 
   apiFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: handler.app.lambda_handler
+      Handler: index.handler
       CodeUri: src
       Description: api functions
       Architectures:
@@ -95,8 +95,8 @@ Resources:
 
       Tags:
         STAGE: !Ref Stage
-      Layers:
-        - !Ref PackagesLayer
+      # Layers:
+      #   - !Ref PackagesLayer
       Policies:
         - DynamoDBCrudPolicy:
             TableName: "*"
@@ -105,6 +105,18 @@ Resources:
               Action:
                 - dynamodb:CreateTable
               Resource: "*"
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Format: esm
+        OutExtension: [".js=.mjs"]
+        Platform: node
+        Target: node20
+        Minify: false
+        Sourcemap: true
+        EntryPoints: ["index"]
+        # aws-sdk v3 is already included in the AWS Lambda runtime
+        External: ["@aws-sdk/*"]
 
   ApplicationResourceGroup:
     Type: AWS::ResourceGroups::Group
