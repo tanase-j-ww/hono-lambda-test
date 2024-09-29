@@ -6,7 +6,18 @@
   "scripts": {
     "build": "sam build --config-env=local",
     "dev": "npm run build && sam local start-api --config-env=local",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "run-p -c test:*",
+    "test:type": "tsc --noEmit",
+    "lint:biome": "npx @biomejs/biome lint --write src/",
+    "lint:biome:ci": "npx @biomejs/biome lint src/",
+    "lint:eslint": "eslint --ext .jsx,.js,.tsx,.ts src/ --fix",
+    "lint:eslint:ci": "eslint --ext .jsx,.js,.tsx,.ts src/",
+    "lint": "npm run lint:biome & npm run lint:eslint",
+    "lint:ci": "npm run lint:biome:ci & npm run lint:eslint:ci",
+    "format": "npx @biomejs/biome format src/ --write",
+    "format:ci": "npx @biomejs/biome format src/",
+    "check": "npx @biomejs/biome check src/ --write & npm run lint:eslint",
+    "check:ci": "npx @biomejs/biome check src/ & npm run lint:eslint:ci"
   },
   "author": "tanase-j-ww",
   "license": "ISC",
@@ -17,7 +28,12 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.2",
     "@types/node": "^22.7.4",
-    "esbuild": "^0.24.0"
+    "@typescript-eslint/parser": "^8.7.0",
+    "esbuild": "^0.24.0",
+    "eslint": "^8.57.1",
+    "eslint-plugin-import": "^2.30.0",
+    "npm-run-all": "^4.1.5"
   }
 }
