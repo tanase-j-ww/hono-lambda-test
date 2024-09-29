@@ -1,3 +1,7 @@
 {
-  "recommendations": ["emeraldwalk.RunOnSave"]
+  "recommendations": [
+    "emeraldwalk.RunOnSave",
+    "biomejs.biome",
+    "wayou.vscode-todo-highlight"
+  ]
 }
